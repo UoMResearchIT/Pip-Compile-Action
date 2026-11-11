@@ -19,6 +19,10 @@ inputs:
     description: "The version of pip-tools to install. If not specified, the most recent version will be installed."
     required: false
     default: ""
+  pip-version:
+    description: "The pip version to install. Use 'latest' to opt in to newest pip. Default keeps deterministic behavior."
+    required: false
+    default: "24.2"
   pip-compile-args:
     description: "Additional arguments to pass to pip-compile."
     required: false
@@ -58,8 +62,13 @@ runs:
       - name: Install pip-tools
         # The latest version of pip and pip-tools creates absolute paths instead of relative paths
         # when compiling requirements files.
+        # Set pip version 24.2 as default version
         run: |
-          pip install --upgrade pip==24.2
+          if [[ "${{ inputs.pip-version }}" == "latest" ]]; then
+            pip install --upgrade pip
+          else
+            pip install --upgrade "pip==${{ inputs.pip-version }}"
+          fi
           pip install ${{ steps.get-pip-tools-version-suffix.outputs.PIP_TOOLS_VERSION }}
         shell: bash
 
