@@ -68,36 +68,27 @@ runs:
           fi
           pip install ${{ steps.get-pip-tools-version-suffix.outputs.PIP_TOOLS_VERSION }}
         shell: bash
+      
+      - name: Resolve input and output file paths
+        id: resolve-output-file
+        run: |
+          input_file="${{ inputs.input-file }}"
+          output_file="${{ inputs.output-file }}"
 
-      # For now, just run on a single file in a specific location.
-      # Later, we can make this an input to the workflow.
+          echo "INPUT_FILE=$input_file" >> $GITHUB_OUTPUT
+          echo "OUTPUT_FILE=$output_file" >> $GITHUB_OUTPUT
+          echo "OUTPUT_FILES=$output_file" >> $GITHUB_OUTPUT
+        shell: bash  
+
       - name: Run pip-compile
-        id: run-pip-compile
         run: |
-          for i in $INPUT_REQUIREMENTS_FILES
-          do
-            echo "Compiling $i"
-            pip-compile $INPUT_PIP_COMPILE_ARGS $i
-          done
+          pip-compile \
+            ${{ inputs.pip-compile-args }} \
+            -o "${{ steps.resolve-output-file.outputs.OUTPUT_FILE }}" \
+            "${{ steps.resolve-output-file.outputs.INPUT_FILE }}"
         shell: bash
-        env:
-          INPUT_REQUIREMENTS_FILES: ${{ inputs.requirements_files }}
-          INPUTS_PIP_COMPILE_ARGS: ${{ inputs.pip_compile_args }}
-
-      - name: Get names of output files from pip-compile
-        id: get-output-files
-        run: |
-          output_files=()
-          for file in $INPUT_REQUIREMENTS_FILES
-          do
-            output_files+=("${file%.in}.txt")
-          done
-          echo "OUTPUT_FILES=${output_files[@]}" >> $GITHUB_OUTPUT
-        shell: bash
-        env:
-          INPUT_REQUIREMENTS_FILES: ${{ inputs.requirements_files }}
-
-      - name: Detect if any changes were made to requirements files
+        
+      - name: Detect if any changes were made to the output file
         id: detect-changes
         run: |
           function check() {
