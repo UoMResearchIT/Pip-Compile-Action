@@ -3,18 +3,16 @@
 # SPDX-License-Identifier: apache-2.0
 
 name: "Run pip-compile"
-description: "Install pip-tools and run pip-compile on a set of requirements files."
+description: "Install pip-tools and run pip-compile on a single input file and output file."
 inputs:
-  requirements_files:
-    description: |-
-      The paths to the requirements files to compile. Files will be compiled
-      in the order they are listed. To specify multiple files, use the following
-      syntax:
-
-      requirements_files: |-
-        path/to/requirements1.txt
-        path/to/requirements2.txt
-    required: true
+  input-file:
+    description: "The input file to compile. Defaults to pyproject.toml. Supports files such as pyproject.toml or requirements.in."
+    required: false
+    default: "pyproject.toml"
+  output-file:
+    description: "The output file to generate. Defaults to requirements.txt."
+    required: false
+    default: "requirements.txt"
   pip-tools-version:
     description: "The version of pip-tools to install. If not specified, the most recent version will be installed."
     required: false
