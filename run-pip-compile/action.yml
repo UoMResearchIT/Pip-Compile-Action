@@ -60,9 +60,8 @@ runs:
         shell: bash
       
       - name: Install pip-tools
-        # The latest version of pip and pip-tools creates absolute paths instead of relative paths
-        # when compiling requirements files.
-        # Set pip version 24.2 as default version
+      # pip-tools-version and pip-version specify the pip-tools and pip versions, respectively.
+      # These values are passed via workflow inputs (see the 'inputs' section for details).
         run: |
           if [[ "${{ inputs.pip-version }}" == "latest" ]]; then
             pip install --upgrade pip
