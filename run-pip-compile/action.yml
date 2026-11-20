@@ -19,6 +19,10 @@ inputs:
     description: "The version of pip-tools to install. If not specified, the most recent version will be installed."
     required: false
     default: ""
+  pip-version:
+    description: "The pip version to install. Use 'latest' to opt in to newest pip. Default pip version is 24.2."
+    required: false
+    default: "24.2"
   pip-compile-args:
     description: "Additional arguments to pass to pip-compile."
     required: false
@@ -41,11 +45,31 @@ runs:
         run: |
           if [[ ! -d .github/.action_repo ]]; then ln -fs ${{ env.action_path }}/.. .github/.action_repo; fi
         shell: bash
-
-      - name: Set up pip-tools
-        uses: ./.github/.action_repo/setup-pip-tools
-        with:
-          pip-tools-version: ${{ inputs.pip-tools-version }}
+      
+      - name: Get pip-tools version suffix
+        id: get-pip-tools-version-suffix
+        run: |
+          if [[ -z "${{ inputs.pip-tools-version }}" ]];
+          then
+            echo "using latest version of pip-tools";
+            echo "PIP_TOOLS_VERSION=pip-tools" >> $GITHUB_OUTPUT;
+          else
+            echo "using version ${{ inputs.pip-tools-version }} of pip-tools";
+            echo "PIP_TOOLS_VERSION=pip-tools==${{ inputs.pip-tools-version }}" >> $GITHUB_OUTPUT;
+          fi
+        shell: bash
+      
+      - name: Install pip-tools
+      # pip-tools-version and pip-version specify the pip-tools and pip versions, respectively.
+      # These values are passed via workflow inputs (see the 'inputs' section for details).
+        run: |
+          if [[ "${{ inputs.pip-version }}" == "latest" ]]; then
+            pip install --upgrade pip
+          else
+            pip install --upgrade "pip==${{ inputs.pip-version }}"
+          fi
+          pip install ${{ steps.get-pip-tools-version-suffix.outputs.PIP_TOOLS_VERSION }}
+        shell: bash
 
       # For now, just run on a single file in a specific location.
       # Later, we can make this an input to the workflow.
