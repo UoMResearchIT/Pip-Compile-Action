@@ -11,5 +11,8 @@ The original project provides GitHub Actions for pip-tools and is open for publi
 
 `pip-compile action` uses pip-compile to manage Python project dependencies and their versions. It takes pyproject.toml or requirements.in as input and generates a requirements.txt file with pinned dependency versions.
 
+# Warning
+This code is in development - until this is finished we do not recommend you use this tool to manage your requirements files.
+
 # Credits
 This project is based on the original [pip-tools-actions](https://github.com/UW-GAC/pip-tools-actions) repository. We acknowledge and thank the original project for providing the foundation for this adapted tool.
